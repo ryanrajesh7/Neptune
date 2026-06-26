@@ -70,7 +70,7 @@ void Board::fromFEN(std::stringstream& ss) {
 }
 
 void Board::resetBoard() {
-    std::stringstream startpos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    std::stringstream startpos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); //this is the fen for starting position
     fromFEN(startpos);
 }
 
