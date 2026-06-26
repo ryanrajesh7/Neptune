@@ -1,0 +1,3 @@
+/home/monarch/Code/projects/Neptune/build/CMakeFiles/neptune.dir
+/home/monarch/Code/projects/Neptune/build/CMakeFiles/edit_cache.dir
+/home/monarch/Code/projects/Neptune/build/CMakeFiles/rebuild_cache.dir
