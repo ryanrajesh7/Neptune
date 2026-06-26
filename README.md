@@ -11,7 +11,7 @@ The primary goal of this project was to master C++ class design, recursion, and 
 *   **Tactical Baseline:** Uses a straightforward evaluation function to weight material values and positional basics—capable of defeating absolute beginners and casual players who leave pieces undefended.
 
 ## 💻 Tech Stack & Environment
-*   **Language:** C++ (Object-Oriented Programming)
+*   **Language:** C++ 
 *   **Environment:** Linux / Command Line Interface (CLI)
 *   **Compilation:** Standard `g++` compiler
 
