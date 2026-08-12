@@ -10,7 +10,7 @@ Interface::Interface() : engine() {}
 
 void Interface::mainloop() {
 
-    engine.maxDepth=4;
+    engine.maxDepth=6;
     std::string line;
     
     while (true) {

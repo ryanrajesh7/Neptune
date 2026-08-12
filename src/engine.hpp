@@ -62,9 +62,9 @@ class Engine {
     Engine();
     void makeMoves(std::stringstream& ss);
     std::pair<std::string,int> bestMove(); //returns the bestmove
-    int search(int depth);
+    int search(int depth, int alpha, int beta);
     int staticEval();
-    int backtrack(int start, int dest, char promotion, int bestScore, int depth);
+    int backtrack(int start, int dest, char promotion, int bestScore, int depth, int alpha, int beta);
 };
 
 #endif

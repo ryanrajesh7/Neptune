@@ -2,6 +2,7 @@
 #include <sstream>
 #include <array>
 #include <iostream>
+#include <algorithm>
 
 #include "engine.hpp"
 #include "board.hpp"
@@ -21,7 +22,7 @@ void Engine::makeMoves(std::stringstream& ss) {
     }
 }
 
-int Engine::backtrack(int start, int dest, char promotion, int bestScore, int depth) {
+int Engine::backtrack(int start, int dest, char promotion, int bestScore, int depth, int alpha, int beta) {
     //remembering past state
     unsigned char pastState = board.state;
     char pastTurn = board.turn;
@@ -29,7 +30,7 @@ int Engine::backtrack(int start, int dest, char promotion, int bestScore, int de
     //making the move 
     board.makeMove(start, dest, promotion);
 
-    int nextScore = search(depth+1);
+    int nextScore = search(depth+1,alpha,beta);
 
     //undoing the move
     board.undo();
@@ -43,7 +44,7 @@ int Engine::backtrack(int start, int dest, char promotion, int bestScore, int de
 
 
 
-int Engine::search(int depth) {
+int Engine::search(int depth, int alpha, int beta) {
     if (depth==maxDepth) return staticEval();
 
     int bestScore = (board.turn=='w')?-INF:INF;
@@ -61,12 +62,12 @@ int Engine::search(int depth) {
                 
                 if (board.isValid(start,dest) && board[dest]=='0') {
                     if (dest/8==7 || dest/8==0) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
                     }
                     else {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                 }
 
@@ -75,8 +76,8 @@ int Engine::search(int depth) {
                 else dest=start-16;
 
                 if ((board.isValid(start,dest)) && (board[dest]=='0') && ((board.turn=='w' && start/8==1 && board[start+8]=='0') || (board.turn=='b' && start/8==6 && board[start-8]=='0'))) {
-                    if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                    if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                 }
 
                 //capture
@@ -85,12 +86,12 @@ int Engine::search(int depth) {
 
                 if (board.isValid(start,dest) && board[dest]!='0') {
                     if (dest/8==7 || dest/8==0) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
                     }
                     else {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                 }
 
@@ -100,12 +101,12 @@ int Engine::search(int depth) {
 
                 if (board.isValid(start,dest) && board[dest]!='0') {
                     if (dest/8==7 || dest/8==0) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
                     }
                     else {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                 }
             }
@@ -115,8 +116,8 @@ int Engine::search(int depth) {
                 for (int move : moves) {
                     int dest = start+move;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                 }
             }
@@ -125,8 +126,8 @@ int Engine::search(int depth) {
                 for (int move : moves) {
                     int dest = start+move;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                 }
             }
@@ -134,32 +135,32 @@ int Engine::search(int depth) {
                 for (int dest=start+9; dest<64; dest+=9) {
                     if (dest%8==0) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start-9; dest>=0; dest-=9) {
                     if (dest%8==7) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start+7; dest<64; dest+=7) {
                     if (dest%8==7) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start-7; dest>=0; dest-=7) {
                     if (dest%8==0) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
@@ -168,30 +169,30 @@ int Engine::search(int depth) {
                 for (int dest=start+1; dest<64; dest++) {
                     if (dest%8==0) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start-1; dest>=0; dest--) {
                     if (dest%8==7) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start+8; dest<64; dest+=8) {
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start-8; dest>=0; dest-=8) {
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
@@ -200,66 +201,72 @@ int Engine::search(int depth) {
                 for (int dest=start+9; dest<64; dest+=9) {
                     if (dest%8==0) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start-9; dest>=0; dest-=9) {
                     if (dest%8==7) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start+7; dest<64; dest+=7) {
                     if (dest%8==7) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start-7; dest>=0; dest-=7) {
                     if (dest%8==0) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start+1; dest<64; dest++) {
                     if (dest%8==0) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start-1; dest>=0; dest--) {
                     if (dest%8==7) break;
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start+8; dest<64; dest+=8) {
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
                 for (int dest=start-8; dest>=0; dest-=8) {
                     if (board.isValid(start,dest)) {
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     }
                     if (board[dest]!='0') break;
                 }
             }
+            if (board.turn=='w')
+                alpha = std::max(alpha, bestScore);
+            else 
+                beta  = std::min(beta, bestScore);
+            if (beta<=alpha)
+                break;
         }  
     }
     return bestScore;
@@ -270,7 +277,8 @@ std::pair<std::string,int> Engine::bestMove() {
     int depth=0;
     int bestScore = (board.turn=='w')?-INF:INF;
     char promotion='0';
-
+    int alpha = -INF,beta=INF;
+    
     for (int start=0; start<64; start++) {
         if ((board.turn=='w' && isupper(board[start])) || (board.turn=='b'&& islower(board[start]))) {
             char piece = board[start];
@@ -289,8 +297,8 @@ std::pair<std::string,int> Engine::bestMove() {
                     }
                     if (dest/8==7 || dest/8==0) {
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -299,8 +307,8 @@ std::pair<std::string,int> Engine::bestMove() {
                     }
                     else {
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -318,8 +326,8 @@ std::pair<std::string,int> Engine::bestMove() {
                         bestDest=dest;
                     }
                     int pastScore = bestScore;
-                    if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                    else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                    if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                    else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                     if (pastScore!=bestScore) {
                         bestStart=start;
                         bestDest = dest;
@@ -337,8 +345,8 @@ std::pair<std::string,int> Engine::bestMove() {
                     }
                     if (dest/8==7 || dest/8==0) {
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -347,8 +355,8 @@ std::pair<std::string,int> Engine::bestMove() {
                     }
                     else {
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -367,8 +375,8 @@ std::pair<std::string,int> Engine::bestMove() {
                     }
                     if (dest/8==7 || dest/8==0) {
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -377,8 +385,8 @@ std::pair<std::string,int> Engine::bestMove() {
                     }
                     else {
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -397,8 +405,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -416,8 +424,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -434,8 +442,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -451,8 +459,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -468,8 +476,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -485,8 +493,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -504,8 +512,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -521,8 +529,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -537,8 +545,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -553,8 +561,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -572,8 +580,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -589,8 +597,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                        int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -606,8 +614,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                        int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -623,8 +631,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -640,8 +648,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -657,8 +665,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -673,8 +681,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -689,8 +697,8 @@ std::pair<std::string,int> Engine::bestMove() {
                             bestDest=dest;
                         }
                         int pastScore = bestScore;
-                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth));
-                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth));
+                        if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
+                        else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
@@ -700,6 +708,13 @@ std::pair<std::string,int> Engine::bestMove() {
                 }
             }
         }  
+        if (board.turn=='w')
+            alpha=std::max(alpha,bestScore);
+        else 
+            beta = std::min(alpha,beta);
+
+        if (beta<=alpha)
+            break;
     }
     char startCol = (bestStart%8)+'a';
     char startRow = (bestStart/8) +'1';
