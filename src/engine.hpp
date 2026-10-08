@@ -59,12 +59,12 @@ class Engine {
                                     0,0,0,0,0,0,0,0,
                                     0,0,30,30,30,30,0,0};
 
-    Engine();
-    void makeMoves(std::stringstream& ss);
-    std::pair<std::string,int> bestMove(); //returns the bestmove
-    int search(int depth, int alpha, int beta);
-    int staticEval();
-    int backtrack(int start, int dest, char promotion, int bestScore, int depth, int alpha, int beta);
+    Engine() noexcept;
+    void makeMoves(std::stringstream& ss) noexcept;
+    std::pair<std::string,int> bestMove() noexcept; //returns the bestmove
+    int search(int depth, int alpha, int beta) noexcept;
+    int staticEval() noexcept;
+    int backtrack(int start, int dest, char promotion, int bestScore, int depth, int alpha, int beta) noexcept;
 };
 
 #endif

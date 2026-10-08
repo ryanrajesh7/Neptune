@@ -6,9 +6,9 @@
 #include "interface.hpp"
 #include "engine.hpp"
 
-Interface::Interface() : engine() {}
+Interface::Interface() noexcept : engine() {}
 
-void Interface::mainloop() {
+void Interface::mainloop() noexcept {
 
     engine.maxDepth=6;
     std::string line;

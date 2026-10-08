@@ -6,11 +6,11 @@
 
 #include "board.hpp"
 
-Board::Board() : board(),state(0) {
+Board::Board() noexcept: board(),state(0) {
     resetBoard();
 }
 
-void Board::fromFEN(std::stringstream& ss) {
+void Board::fromFEN(std::stringstream& ss) noexcept {
 
     //starting fen rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 
@@ -69,12 +69,12 @@ void Board::fromFEN(std::stringstream& ss) {
     ss>>position;
 }
 
-void Board::resetBoard() {
+void Board::resetBoard() noexcept {
     std::stringstream startpos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     fromFEN(startpos);
 }
 
-void Board::makeMove(int start, int dest, char promotion) {
+void Board::makeMove(int start, int dest, char promotion) noexcept {
 
     state &= (0b11110000);  //resetting enpassant effect
 
@@ -178,7 +178,7 @@ void Board::makeMove(int start, int dest, char promotion) {
     else turn = 'w';
 }
 
-void Board::makeMove(std::string move) {
+void Board::makeMove(std::string move) noexcept {
 
     int start = move[0]-'a' + 8*(move[1]-'1');
     int dest = move[2]-'a' + 8*(move[3]-'1');
@@ -188,7 +188,7 @@ void Board::makeMove(std::string move) {
 }
 
 
-bool Board::isAttacked(int pos, char side) {
+bool Board::isAttacked(int pos, char side) noexcept {
 
     if (side=='b') {
         //by pawns
@@ -329,7 +329,7 @@ bool Board::isAttacked(int pos, char side) {
     return false;
 }
 
-bool Board::isValid(int start, int dest) {
+bool Board::isValid(int start, int dest) noexcept {
     if (dest<0 || dest>=64) return false;
 
     if (turn=='w' && isupper(board[dest])) return false;
@@ -431,15 +431,15 @@ bool Board::isValid(int start, int dest) {
     return flg;
 }
 
-char& Board::operator[](int i) {
+char& Board::operator[](int i) noexcept {
     return board[i];
 }
 
-void Board::print() {
+void Board::print() noexcept {
     for (int i=0;i<64; i++) std::cout<<board[i]<<((i%8==7)?"\n":" ");
 }
 
-void Board::undo() {
+void Board::undo() noexcept {
     char pc = moveStack.top();
     moveStack.pop();
     while (pc!=-1) {   

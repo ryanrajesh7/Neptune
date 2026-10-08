@@ -7,8 +7,8 @@ class Interface {
     public:
     Engine engine;
 
-    Interface();
-    void mainloop();
+    Interface() noexcept;
+    void mainloop() noexcept;
 };
 
 #endif

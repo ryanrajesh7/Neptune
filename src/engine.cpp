@@ -9,20 +9,20 @@
 
 const int INF = 10000000;
 
-Engine::Engine() : board() {
+Engine::Engine() noexcept : board() {
     info = "id name Neptune\nid author RyanRajesh";
 }
 
 
 
-void Engine::makeMoves(std::stringstream& ss) {
+void Engine::makeMoves(std::stringstream& ss) noexcept{
     std::string move;
     while (ss>>move) {
         board.makeMove(move);
     }
 }
 
-int Engine::backtrack(int start, int dest, char promotion, int bestScore, int depth, int alpha, int beta) {
+int Engine::backtrack(int start, int dest, char promotion, int bestScore, int depth, int alpha, int beta) noexcept {
     //remembering past state
     unsigned char pastState = board.state;
     char pastTurn = board.turn;
@@ -44,7 +44,7 @@ int Engine::backtrack(int start, int dest, char promotion, int bestScore, int de
 
 
 
-int Engine::search(int depth, int alpha, int beta) {
+int Engine::search(int depth, int alpha, int beta) noexcept {
     if (depth==maxDepth) return staticEval();
 
     int bestScore = (board.turn=='w')?-INF:INF;
@@ -272,7 +272,7 @@ int Engine::search(int depth, int alpha, int beta) {
     return bestScore;
 }
 
-std::pair<std::string,int> Engine::bestMove() {
+std::pair<std::string,int> Engine::bestMove() noexcept {
     int bestStart=-1,bestDest=-1;
     int depth=0;
     int bestScore = (board.turn=='w')?-INF:INF;
@@ -291,11 +291,13 @@ std::pair<std::string,int> Engine::bestMove() {
                 else dest=start-8;
                 
                 if (board.isValid(start,dest) && board[dest]=='0') {
-                    if (bestStart==-1) {
-                        bestStart=start;
-                        bestDest=dest;
-                    }
+                    
                     if (dest/8==7 || dest/8==0) {
+                        if (bestStart==-1) {
+                            bestStart=start;
+                            bestDest=dest;
+                            promotion='q';
+                        }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
                         else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
@@ -306,12 +308,18 @@ std::pair<std::string,int> Engine::bestMove() {
                         }
                     }
                     else {
+                        if (bestStart==-1) {
+                            bestStart=start;
+                            bestDest=dest;
+                            promotion='0';
+                        }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                 }
@@ -331,6 +339,7 @@ std::pair<std::string,int> Engine::bestMove() {
                     if (pastScore!=bestScore) {
                         bestStart=start;
                         bestDest = dest;
+                        promotion='0';
                     }
                 }
 
@@ -339,11 +348,12 @@ std::pair<std::string,int> Engine::bestMove() {
                 else dest=start-7;
 
                 if (board.isValid(start,dest) && board[dest]!='0') {
-                    if (bestStart==-1) {
-                        bestStart=start;
-                        bestDest=dest;
-                    }
                     if (dest/8==7 || dest/8==0) {
+                        if (bestStart==-1) {
+                            bestStart=start;
+                            bestDest=dest;
+                            promotion='q';
+                        }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
                         else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
@@ -354,12 +364,18 @@ std::pair<std::string,int> Engine::bestMove() {
                         }
                     }
                     else {
+                        if (bestStart==-1) {
+                            bestStart=start;
+                            bestDest=dest;
+                            promotion='0';
+                        }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                 }
@@ -369,11 +385,12 @@ std::pair<std::string,int> Engine::bestMove() {
                 else dest = start-9;
 
                 if (board.isValid(start,dest) && board[dest]!='0') {
-                    if (bestStart==-1) {
-                        bestStart=start;
-                        bestDest=dest;
-                    }
                     if (dest/8==7 || dest/8==0) {
+                        if (bestStart==-1) {
+                            bestStart=start;
+                            bestDest=dest;
+                            promotion='q';
+                        }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
                         else bestScore = std::min(bestScore,backtrack(start,dest,'q',bestScore,depth,alpha,beta));
@@ -384,12 +401,18 @@ std::pair<std::string,int> Engine::bestMove() {
                         }
                     }
                     else {
+                        if (bestStart==-1) {
+                            bestStart=start;
+                            bestDest=dest;
+                            promotion='0';
+                        }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         else bestScore = std::min(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                 }
@@ -403,6 +426,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -410,6 +434,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                 }
@@ -422,6 +447,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -429,6 +455,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                 }
@@ -440,6 +467,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -447,6 +475,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -457,6 +486,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -464,6 +494,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -474,6 +505,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -481,6 +513,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -491,6 +524,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -498,6 +532,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -510,6 +545,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -517,6 +553,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -527,6 +564,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -534,6 +572,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -543,6 +582,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -550,6 +590,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -559,6 +600,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -566,6 +608,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -578,6 +621,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -585,6 +629,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -595,6 +640,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                        int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -602,6 +648,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -612,6 +659,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                        int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -619,6 +667,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -629,6 +678,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -636,6 +686,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -646,6 +697,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -653,6 +705,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -663,6 +716,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -670,6 +724,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -679,6 +734,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -686,6 +742,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -695,6 +752,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (bestStart==-1) {
                             bestStart=start;
                             bestDest=dest;
+                            promotion='0';
                         }
                         int pastScore = bestScore;
                         if (board.turn=='w') bestScore = std::max(bestScore,backtrack(start,dest,'0',bestScore,depth,alpha,beta));
@@ -702,6 +760,7 @@ std::pair<std::string,int> Engine::bestMove() {
                         if (pastScore!=bestScore) {
                             bestStart=start;
                             bestDest = dest;
+                            promotion='0';
                         }
                     }
                     if (board[dest]!='0') break;
@@ -711,7 +770,7 @@ std::pair<std::string,int> Engine::bestMove() {
         if (board.turn=='w')
             alpha=std::max(alpha,bestScore);
         else 
-            beta = std::min(alpha,beta);
+            beta = std::min(beta,bestScore);
 
         if (beta<=alpha)
             break;
@@ -732,7 +791,7 @@ std::pair<std::string,int> Engine::bestMove() {
     return {bestmove,bestScore};
  }
 
- int Engine::staticEval() {
+ int Engine::staticEval() noexcept {
     int eval=0;
     
     for (int i=0; i<64; i++) {

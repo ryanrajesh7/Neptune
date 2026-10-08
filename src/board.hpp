@@ -14,17 +14,17 @@ class Board {
     unsigned char state;     
     char turn;
 
-    Board();
-    void resetBoard();                              //resets the board
-    void fromFEN(std::stringstream& ss);                  //matches the board with the fen
-    void makeMove(std::string move);                //makes the move.. takes in uci format (eg e2e4) for (e7e8q for promotion)
-    void makeMove(int start,int dest,char promotion); //makes the move.. takes in start and destination square, 
+    Board() noexcept;
+    void resetBoard() noexcept;                              //resets the board
+    void fromFEN(std::stringstream& ss) noexcept;                  //matches the board with the fen
+    void makeMove(std::string move) noexcept;                //makes the move.. takes in uci format (eg e2e4) for (e7e8q for promotion)
+    void makeMove(int start,int dest,char promotion) noexcept; //makes the move.. takes in start and destination square, 
                                                         //and promotion piece, '0' for no promotion
-    bool isValid(int start, int dest); //checks if the suggested move (start,dest)is valid one or not
-    bool isAttacked(int pos, char side);                      //checks if the  given square is attacked by opposite side
-    char& operator[](int i);
-    void print();
-    void undo();
+    bool isValid(int start, int dest) noexcept; //checks if the suggested move (start,dest)is valid one or not
+    bool isAttacked(int pos, char side) noexcept;                      //checks if the  given square is attacked by opposite side
+    char& operator[](int i) noexcept;
+    void print() noexcept;
+    void undo() noexcept;
 };
 
 #endif
